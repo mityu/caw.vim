@@ -40,6 +40,7 @@ function! caw#keymapping_stub(mode, action, method) abort
   let context.context_filetype = conft
   let context.mode = a:mode
   let context.visualmode = visualmode()
+  let context.action = a:action
   if a:mode ==# 'n'
     if v:count ==# 0
       let context.firstline = line('.')

@@ -1,10 +1,22 @@
 " vim:foldmethod=marker:fen:
 scriptencoding utf-8
 
-function! s:is_vim9line(lnum) abort
-  return search('\C\m^\s*vim9s\%[cript]\>', 'bnWz') >= 1
+let s:Vim9context = vital#caw#import('Vim.Vim9context')
+function! s:get_oneline_comment(_) abort
+  let context = caw#context()
+  let col = 1
+  if context.action ==# 'dollarpos'
+    let col = col([context.firstline, '$'])
+  endif
+
+  if s:Vim9context.get_context_pos(context.firstline, col) ==
+        \ s:Vim9context.context().vim9_script
+    return '#'
+  endif
+  return '"'
 endfunction
-let b:caw_oneline_comment = { lnum -> s:is_vim9line(lnum) ? '#' : '"' }
+
+let b:caw_oneline_comment = funcref('s:get_oneline_comment')
 function! s:linecont_sp(lnum) abort
   return getline(a:lnum) =~# '^\s*\\' ? '' : ' '
 endfunction
