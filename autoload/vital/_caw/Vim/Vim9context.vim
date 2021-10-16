@@ -37,7 +37,7 @@ function! s:get_context_pos(linenr, columnnr) abort
 
   " Finally, check if there's :vim9script command because when the line does
   " not meet the conditions above, the line is at script level.
-  let context = s:_determine_context_by_file()
+  let context = s:_determine_context_by_file(a:linenr)
   if context == s:CONTEXT_UNKNOWN
     echoerr '[vim9context] Internal Error: context is unknown that is must not be.'
     let context = s:CONTEXT_VIM_SCRIPT
@@ -152,12 +152,13 @@ endfunction
 " Check if the vim9script use exists or not and determine if the file is
 " vim9script file or not. This function must not return
 " s:CONTEXT_UNKNOWN.
-function! s:_determine_context_by_file() abort
+function! s:_determine_context_by_file(linenr) abort
   let curpos = getpos('.')
   try
     normal! gg0
-    let linenr = search('^\s*\<vim9s\%[cript]\>\%(\s\+noclear\)\?\s*$', 'cnW')
-    if linenr <= 0
+    let linenr = search('^\s*\<vim9s\%[cript]\>\%(\s\+noclear\)\?\s*$',
+          \ 'cnW', a:linenr)
+    if linenr <= 0 || linenr == a:linenr
       return s:CONTEXT_VIM_SCRIPT
     endif
     return s:CONTEXT_VIM9_SCRIPT
@@ -168,13 +169,13 @@ endfunction
 
 function! s:_find_innermost_legacy_function(linenr, columnnr) abort
   let begin = '\v^\s*%(<%(export|leg%[acy]|vim9%[cmd])>\s+)*fu%[nction]>'
-  let end = 'en\%[dfunction]\>'
+  let end = '\<en\%[dfunction]\>'
   return s:_find_innermost_block(begin, end, a:linenr, a:columnnr)
 endfunction
 
 function! s:_find_innermost_def_function(linenr, columnnr) abort
   let begin = '\v^\s*%(<%(export|legacy|vim9cmd)>\s+)*def>'
-  let end = 'enddef\>'
+  let end = '\<enddef\>'
   return s:_find_innermost_block(begin, end, a:linenr, a:columnnr)
 endfunction
 
