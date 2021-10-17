@@ -19,7 +19,7 @@ function! s:context() abort
 endfunction
 
 function! s:get_context() abort
-  return s:get_context(line('.'), col('.'))
+  return s:get_context_pos(line('.'), col('.'))
 endfunction
 
 function! s:get_context_pos(linenr, columnnr) abort
